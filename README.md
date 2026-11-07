@@ -1,1 +1,0 @@
-# Alpha-trading-ai
