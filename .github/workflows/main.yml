@@ -1,0 +1,42 @@
+name: Build ALPHA TRADE AI Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Test and build APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Run unit tests and build debug APK
+        env:
+          PHANTOM_APP_URL: ${{ vars.PHANTOM_APP_URL }}
+        run: |
+          gradle testDebugUnitTest assembleDebug -PPHANTOM_APP_URL="$PHANTOM_APP_URL"
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: alpha-trade-ai-v0.5.0-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
